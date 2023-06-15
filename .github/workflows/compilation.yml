@@ -1,5 +1,5 @@
 name: "Compilation du script python de ouf."
-run-name: ${{ github.actor }} apprend powershell sur Github.
+run-name: Falcom77 apprend powershell sur Github.
 
 on:
   push:

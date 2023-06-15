@@ -1,3 +1,4 @@
 pyinstaller
+pyinstaller-versionfile
 configparser
 rich
