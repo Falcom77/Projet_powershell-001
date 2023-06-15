@@ -1,0 +1,127 @@
+name: "Compilation du script python de ouf."
+run-name: ${{ github.actor }} apprend powershell sur Github.
+
+on:
+  push:
+    branches: [ "develop" ]
+
+env:
+  URL_UPX: https://github.com/upx/upx/releases/download/v4.0.2/upx-4.0.2-win64.zip
+  FIC_UPX: upx-4.0.2-win64.zip
+  REP_UPX: upx-4.0.2-win64
+  CHEMIN_UPX: "/c/ProgramData/chocolatey/lib/upx/tools/upx-4.0.2-win64"
+
+jobs:
+  test-Windobe:
+    runs-on: windows-latest
+    steps:
+    - name: Clonage du dépot.
+      uses: actions/checkout@v3.5.3
+      with:
+          fetch-depth: 0
+
+    - name: Installation de python3.
+      uses: actions/setup-python@v4.6.1
+      with:
+        python-version: '3.11'
+
+    - name: Installation des packages chocolatey.
+      uses: crazy-max/ghaction-chocolatey@v2
+      with:
+        args: install wget upx -y
+
+    - name: Création de l'environement virtuel.
+      shell: bash
+      run: python -m venv venv
+
+    - name: Installation des dépendances et compilation.
+      shell: bash
+      run: |
+        source venv/Scripts/activate
+        python.exe -m pip install --upgrade pip setuptools wheel
+        python.exe -m pip install -r requirements.txt
+        create-version-file metadata.yml --outfile file_version_info.txt  --version 1.0.0
+        pyinstaller --noconfirm --onedir --console --icon "Tuxicon.ico" --name "jeu_de_math" --upx-dir "${CHEMIN_UPX}" --clean --log-level "INFO" --add-data "config.cfg;." --version-file file_version_info.txt main.py
+
+    - name: Récupération du répertoire des binaires.
+      shell: bash
+      run: mv build/jeu_de_math .
+
+    - name: Compression au format zip.
+      shell: bash
+      run: 7z a jeu_de_math.zip jeu_de_math
+
+    - name: Compression au format 7zip.
+      shell: bash
+      run: 7z a jeu_de_math.7z jeu_de_math
+
+    - name: Compression au format sfx.
+      shell: bash
+      run: 7z a jeu_de_math.exe jeu_de_math -sfx
+
+    - name: Upload des archives.
+      uses: actions/upload-artifact@v3.1.2
+      with:
+        retention-days: 1
+        if-no-files-found: warn
+        path: |
+          jeu_de_math.zip
+          jeu_de_math.7z
+          jeu_de_math.exe
+
+#**************************************************************************************************************************************************************
+
+  test-Ubuntu:
+    needs: test-Windobe
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Clonage du dépot.
+      uses: actions/checkout@v3.5.3
+      with:
+          fetch-depth: 0
+
+    - name: Création de l'environement virtuel.
+      shell: bash
+      run: python -m venv venv
+
+    - name: Installation des dépendances et compilation.
+      shell: bash
+      run: |
+        source venv/bin/activate
+        pip install --upgrade pip setuptools wheel
+        pip install -r requirements.txt
+        pyinstaller --noconfirm --onedir --name "jeu_de_math" --clean --log-level "INFO" --noupx --add-data "config.cfg:."  "main.py"
+
+    - name: Récupération du répertoire des binaires.
+      shell: bash
+      run: mv build/jeu_de_math .
+
+    - name: Compression du répertoire.
+      shell: bash
+      run: tar -Jcf jeu_de_math-Ubuntu.tar.xz jeu_de_math
+    
+    - name: Récupération des archives.
+      uses: actions/download-artifact@v3.0.2
+      with:
+        path: ${{ github.workspace }}
+
+    - name: Récupération des artifacts.
+      shell: bash
+      run: cp artifact/* .
+
+    - name: Calcul des hash des fichiers.
+      shell: bash
+      run: |
+        chmod 700 hash_fic.sh
+        ./hash_fic.sh
+
+    - name: Upload de l'archive et des hash.
+      uses: actions/upload-artifact@v3.1.2
+      with:
+        retention-days: 1
+        if-no-files-found: warn
+        path: |
+          jeu_de_math-Ubuntu.tar.xz
+          SHA256SUMS
+          MD5SUMS

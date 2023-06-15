@@ -1,0 +1,10 @@
+Version: 1.0.0
+CompanyName: Sebastux inc
+FileDescription: Jeu de math pour enfant
+InternalName: jeu_de_math
+LegalCopyright: © Sebastux inc.
+OriginalFilename: jeu_de_math.exe
+ProductName: jeu_de_math
+Translation:
+  - langID: 0
+    charsetID: 1208
