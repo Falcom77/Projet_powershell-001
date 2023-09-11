@@ -60,7 +60,7 @@ jobs:
       run: 7z a jeu_de_math.exe jeu_de_math -sfx
 
     - name: Upload des archives.
-      uses: actions/upload-artifact@v3.1.2
+      uses: actions/upload-artifact@v3.1.3
       with:
         retention-days: 1
         if-no-files-found: warn
@@ -117,7 +117,7 @@ jobs:
         ./hash_fic.sh
 
     - name: Upload de l'archive et des hash.
-      uses: actions/upload-artifact@v3.1.2
+      uses: actions/upload-artifact@v3.1.3
       with:
         retention-days: 1
         if-no-files-found: warn
