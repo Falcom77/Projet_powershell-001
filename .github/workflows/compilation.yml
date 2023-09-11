@@ -26,7 +26,7 @@ jobs:
         python-version: '3.11'
 
     - name: Installation des packages chocolatey.
-      uses: crazy-max/ghaction-chocolatey@v2
+      uses: crazy-max/ghaction-chocolatey@v3
       with:
         args: install wget upx -y
 
